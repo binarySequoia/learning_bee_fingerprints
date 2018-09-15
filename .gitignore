@@ -1,0 +1,9 @@
+stats/
+raw_data/
+datasets/
+data/
+models/
+logs/
+.ipynb_checkpoints/
+weights/
+__pycache__/

@@ -1,0 +1,16 @@
+python ../py_scripts/5_train_network.py -n alex_net -o alex_net
+python ../py_scripts/5_train_network.py -n alex_net_softmax -o alex_net_softmax
+python ../py_scripts/5_train_network.py -n alex_net_sigmoid -o alex_net_sigmoid
+python ../py_scripts/5_train_network.py -n alex_net_dbl_sigmoid -o alex_net_dbl_sigmoid
+python ../py_scripts/5_train_network.py -n vggnet_6 -o vggnet_6
+python ../py_scripts/5_train_network.py -n vggnet_6_softmax -o vggnet_6_softmax
+python ../py_scripts/5_train_network.py -n vggnet_6_sigmoid -o vggnet_6_sigmoid
+python ../py_scripts/5_train_network.py -n vggnet_6_dbl_sigmoid -o vggnet_6_dbl_sigmoid
+python ../py_scripts/5_train_network.py -n vggnet_8 -o vggnet_8
+python ../py_scripts/5_train_network.py -n vggnet_8_softmax -o vggnet_8_softmax
+python ../py_scripts/5_train_network.py -n vggnet_8_sigmoid -o vggnet_8_sigmoid
+python ../py_scripts/5_train_network.py -n vggnet_8_dbl_sigmoid -o vggnet_8_dbl_sigmoid
+python ../py_scripts/5_train_network.py -n vggnet_8v2 -o vggnet_8v2
+python ../py_scripts/5_train_network.py -n vggnet_8v2_softmax -o vggnet_8v2_softmax
+python ../py_scripts/5_train_network.py -n vggnet_8v2_sigmoid -o vggnet_8v2_sigmoid
+python ../py_scripts/5_train_network.py -n vggnet_8v2_dbl_sigmoid -o vggnet_8v2_dbl_sigmoid
