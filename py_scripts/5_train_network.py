@@ -2,11 +2,6 @@
 
 # # Siamese Network
 
-# #### dependecies
-
-# In[14]:
-
-
 import random
 from skimage import io
 import matplotlib.pyplot as plt
@@ -92,10 +87,6 @@ OUTPUT_PATH = "../stats/"
 
 # ### Load Data
 
-# In[15]:
-
-network = base_network(NETWORK_NAME)
-
 def read_data_metadata(fn):
     data = None
     with open(fn, "r") as f:
@@ -104,7 +95,8 @@ def read_data_metadata(fn):
 
 metadata = read_data_metadata(os.path.join("../datasets/dataset1", "metadata"))
 
-
+##########################################################
+# Load DATA
 print("Loading Data...")
 # TODO: Clean This
 # TODO: Add model and dataset Metadata 
@@ -124,23 +116,10 @@ y_test = data["y_test"]
 
 del data
 
-
+##########################################################
+# Setting Metadata
 
 metadata["training"] = dict()
-
-
-
-# ### Configure Siamese Network
-
-# #### Loss and distance related Functions
-
-# In[24]:
-
-# TODO: Mve this funtion to utils folder
-
-
-
-# In[25]:
 
 LOSS = contrastive_loss(MARGIN_VALUE)
 metadata["training"]["loss"] = "contrastive_loss"
@@ -153,98 +132,58 @@ if LOGLOSS:
 metadata["training"]["margin"] = MARGIN_VALUE
 metadata["training"]["epochs"] = EPOCHS
 
+##########################################################
+# Load Network Architeture
+network = base_network(NETWORK_NAME)
+#network.summary()
 
-# In[26]:
-
-
-network.summary()
-
-
-# In[27]:
-
-
+##########################################################
+# Build Siamese Architecture
 input_a = Input(shape=[230, 105, 3])
 input_b = Input(shape=[230, 105, 3])
-
-
-# In[28]:
-
 
 processed_a = network(input_a)
 processed_b = network(input_b)
 
 
-# #### Merge networks with euclidean distance
-
-# In[29]:
-
-
+# Merge networks with euclidean distance
 distance_merge = Lambda(euclidean_distance,
                           output_shape=eucl_dist_output_shape)([processed_a, processed_b])
-
-
-# In[30]:
-
 
 model = Model([input_a, input_b], distance_merge)
 
 
-# In[31]:
-
-
 # model.save(os.path.join(MODEL_DIR, "train_4.h5"))
 
-
-# #### Configure loss and other parameters
-
-# In[32]:
-
-
-
+##########################################################
+# Compile
 model.compile(loss=LOSS, optimizer=OPTIMIZER, metrics=[accuracy, accuracy1, accuracy5])
 
-
-# In[33]:
-
-
-model.summary()
-
-
-# #### Set-up TensorBoard
-
-# In[34]:
-
-
+# Set-up TensorBoard
 tf_board = TensorBoard(os.path.join(LOGS_DIR, OUTPUT_NAME))
-
-
-# In[35]:
-
 callbacks = [tf_board]
+
 
 if(EARLY_STOP):
     earlystop = EarlyStopping(monitor='val_loss', min_delta=0.00001, patience=15, verbose=1, mode='min')
-    callbacks = [tf_board, earlystop]
+    callbacks.append(earlystop)
 
-
-# ### Train Siamese Network 
-
-# In[36]:
-
+##########################################################
+# Train Siamese Network
 #TODO: save history in a csv format
 history = model.fit([X1, X2], y, 
                     batch_size=10, epochs=EPOCHS, verbose=1, callbacks=callbacks,
                     validation_data=([X1_test, X2_test], y_test))
 
-
-# In[ ]:
-
+##########################################################
+# Save Model and Weights
 WEIGHTS_FILE = os.path.join(WEIGHTS_DIR, "{}-w.h5".format(OUTPUT_NAME))
 model.save(os.path.join(MODELS_DIR, "{}.h5".format(OUTPUT_NAME)))
 model.save_weights(WEIGHTS_FILE)
 
-# Load Model
+
 #######################################
+# Load Model for tests network
 print("Loading Model...")
 network = base_network(NETWORK_NAME)
 
@@ -281,8 +220,11 @@ OUTPUT_PATH += OUTPUT_NAME
 if not os.path.exists(OUTPUT_PATH):
     os.mkdir(OUTPUT_PATH)
 
-# TODO: Module this code
 
+
+##########################################################
+# Save Train and Test predictions
+# TODO: Refactor this code
 df_dict_train = {
     "X1": X1_fn,
     "X2": X2_fn,
@@ -305,9 +247,13 @@ test_df = pd.DataFrame.from_dict(df_dict_test)
 test_df["training"] = 0
 test_df.to_csv(OUTPUT_PATH + "/{0}-test_results.csv".format(OUTPUT_NAME), index=False)
 
-# TODO: Add option for CONTACT SHEET
-
+##########################################################
+# Save Metadata file
 with open(os.path.join(OUTPUT_PATH, "metadata"), "w") as f:
     f.write(json.dumps(metadata, indent=2))
+
+# TODO: Add option for CONTACT SHEET
+
+
 
 
