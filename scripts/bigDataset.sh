@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=1 python py_scripts/5_1_train_network_w_dataflow.py -n alex_net128_reg -o alex_net128_margin2_reg -m 2.0 -e 1

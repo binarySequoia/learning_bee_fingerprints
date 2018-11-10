@@ -34,8 +34,9 @@ from utils.load_data import *
 from utils.paths import *
 from utils.utils import *
 from utils.metadata import *
+from utils.dataflows import *
+from utils.generator import *
 from networks.networks import *
-
 
 
 # TODO: ADD option for retrain network
@@ -49,17 +50,17 @@ parser.add_argument('-c', '--name', type=str, metavar='', default="",
                     help='Output name convetion')
 parser.add_argument('-m', '--margin', metavar='', type=float, default=1.0,
                     help='margin')
-parser.add_argument('-e', '--epochs', metavar='', type=int, default=60,
+parser.add_argument('-e', '--epochs', metavar='', type=int, default=100,
                     help='epochs')
 parser.add_argument('-b', '--batch', metavar='', type=int, default=128,
                     help='Batch Size')
-parser.add_argument('-t', '--train', metavar='', default='../datasets/dataset2/train_pairs.csv',
+parser.add_argument('-t', '--train', metavar='', default='../datasets/body_sept/train_pairs.csv',
                     help='train data csv file')
-parser.add_argument('-s', '--test', metavar='', default='../datasets/dataset2/test_pairs.csv',
+parser.add_argument('-s', '--test', metavar='', default='../datasets/body_sept/test_pairs.csv',
                     help='test data csv file')
 parser.add_argument('-p', '--optimizer', metavar='', default='SGD',
                     help='Optimizer')
-parser.add_argument('-a', '--earlystop', metavar='', default=False,
+parser.add_argument('-a', '--earlystop', action='store_true',
                     help='earlystop flag')
 parser.add_argument('-l', '--logloss', action='store_true',
                     help='contrasive log loss')
@@ -103,21 +104,27 @@ print("Loading Data...")
 # TODO: Clean This
 # TODO: Add model and dataset Metadata 
 
-if DEBUG:
-    data = load_data(TRAIN_CSV, TEST_CSV, sample=100)
-else:
-    data = load_data(TRAIN_CSV, TEST_CSV)
+#train_iter = FeatureDataFlow("../datasets/body_sept/train_pairs.csv")
+data = TrainGenerator("../datasets/body_sept/train_pairs.csv")
+test_data = TrainGenerator("../datasets/body_sept/test_pairs.csv")
 
-[X1, X2] = data["X"]
-y = data["y"]
-[X1_fn, X2_fn] = data["X_fn"]
+df = pd.read_csv("../datasets/body_sept/train_pairs.csv")
+df_t = pd.read_csv("../datasets/body_sept/test_pairs.csv")
 
-[X1_test, X2_test] = data["X_test"]
-y_test = data["y_test"]
-[X1_test_fn, X2_test_fn] = data["X_test_fn"]
+X1_fn = df.X1
+X2_fn = df.X2
+y = df.y.values
 
-del data
+X1_test_fn = df_t.X1
+X2_test_fn = df_t.X2
+y_test = df_t.y.values
 
+
+#X1 = TestGenerator(X1_fn)
+#X2 = TestGenerator(X2_fn)
+
+#X1_test = TestGenerator(X1_test_fn)
+#X2_test = TestGenerator(X2_test_fn)
 ##########################################################
 # Setting Metadata
 
@@ -149,15 +156,15 @@ for network_name, output_name in zip(NETWORKS_NAME, OUTPUTS_NAME):
     # Load Network Architeture
     # network = base_network(NETWORK_NAME)
    
-    network = base_network(network_name)
+    network = base_network(network_name, input_shape=[320, 250, 3])
     training_metadata["model"] = network_name
     #network.summary()
 
     ##########################################################
     # Build Siamese Architecture
     # TODO: Infere Input Shape from metadata
-    input_a = Input(shape=[230, 105, 3])
-    input_b = Input(shape=[230, 105, 3])
+    input_a = Input(shape=[320, 250, 3])
+    input_b = Input(shape=[320, 250, 3])
 
     processed_a = network(input_a)
     processed_b = network(input_b)
@@ -184,9 +191,8 @@ for network_name, output_name in zip(NETWORKS_NAME, OUTPUTS_NAME):
     ##########################################################
     # Train Siamese Network
     # TODO: save history in a csv format
-    history = model.fit([X1, X2], y, 
-                        batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=1, callbacks=callbacks,
-                        validation_data=([X1_test, X2_test], y_test))
+    history = model.fit_generator(data, epochs=EPOCHS, verbose=1, callbacks=callbacks,
+                        validation_data=test_data)
 
     training_metadata["history"] = history.history
     ##########################################################
@@ -201,25 +207,62 @@ for network_name, output_name in zip(NETWORKS_NAME, OUTPUTS_NAME):
     #######################################
     # Load Model for tests network
     print("Loading Model...")
-    network = base_network(network_name)
+    network = base_network(network_name, [320, 250, 3])
 
-    network_input = Input([230, 105, 3])
+    network_input = Input([320, 250, 3])
 
     model = network(network_input)
-
+    
     model = Model(network_input, model)
 
     model.load_weights(WEIGHTS_FILE)
     #######################################
     # Predict on training and testing data
     
-    print("Predicting Training Data with {}...".format(network_name))
-    train_pred_x1 = model.predict(X1)
-    train_pred_x2 = model.predict(X2)
+    
+    #train_pred_x1 = model.predict_generator(X1)
+    #train_pred_x2 = model.predict_generator(X2)
 
+    
+    #test_pred_x1 = model.predict_generator(X1_test)
+    #test_pred_x2 = model.predict_generator(X2_test)
+    
+    train_size = len(X1_fn)
+    test_size = len(X1_test_fn)
+    batch = 256
+    output_dim = model.output.shape.as_list()[1]
+
+    train_pred_x1= np.empty((0,output_dim))
+    train_pred_x2 = np.empty((0,output_dim))
+    
+    test_pred_x1= np.empty((0,output_dim))
+    test_pred_x2 = np.empty((0,output_dim))
+    print("Predicting Training Data with {}...".format(network_name))
+    for i in range(0, train_size, batch):
+        if i + batch >= train_size:
+            x1_batch = X1_fn[i:].values
+            x2_batch = X2_fn[i:].values
+        else:   
+            x1_batch = X1_fn[i:i+batch].values
+            x2_batch = X2_fn[i:i+batch].values
+        x1_imgs = np.array(io.imread_collection(x1_batch))/255.0
+        x2_imgs = np.array(io.imread_collection(x2_batch))/255.0
+        train_pred_x1 = np.append(train_pred_x1, model.predict(x1_imgs), axis=0)
+        train_pred_x2 = np.append(train_pred_x2, model.predict(x2_imgs), axis=0)
+    
     print("Predicting Testing Data with {} ...".format(network_name))
-    test_pred_x1 = model.predict(X1_test)
-    test_pred_x2 = model.predict(X2_test)
+    for i in range(0, test_size, batch):
+        if i + batch >= test_size:
+            x1_batch = X1_test_fn[i:].values
+            x2_batch = X2_test_fn[i:].values
+        else:   
+            x1_batch = X1_test_fn[i:i+batch].values
+            x2_batch = X2_test_fn[i:i+batch].values
+        x1_imgs = np.array(io.imread_collection(x1_batch))/255.0
+        x2_imgs = np.array(io.imread_collection(x2_batch))/255.0
+        test_pred_x1 = np.append(test_pred_x1, model.predict(x1_imgs), axis=0)
+        test_pred_x2 = np.append(test_pred_x2, model.predict(x2_imgs), axis=0)
+
 
     train_dist = distance(train_pred_x1, train_pred_x2) 
     test_dist = distance(test_pred_x1, test_pred_x2) 
@@ -236,15 +279,15 @@ for network_name, output_name in zip(NETWORKS_NAME, OUTPUTS_NAME):
     # Save Train and Test predictions
     # TODO: Refactor this code
     df_dict_train = {
-        "X1": X1_fn,
-        "X2": X2_fn,
+        "X1": X1_fn.values,
+        "X2": X2_fn.values,
         "y_pred": train_dist,
         "y_true": y
     }
 
     df_dict_test = {
-        "X1": X1_test_fn,
-        "X2": X2_test_fn,
+        "X1": X1_test_fn.values,
+        "X2": X2_test_fn.values,
         "y_pred": test_dist,
         "y_true": y_test
     }

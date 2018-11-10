@@ -5,25 +5,31 @@ from keras.models import Sequential
 from keras.layers import Flatten, Dense, Dropout, Conv2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
 
-def alex_net128_reg(input_shape):
+def alex_net128_reg2(input_shape):
     model = Sequential()
 
-    model.add(Conv2D(32, 9, activation='relu', 
+    model.add(Conv2D(32, 5, activation='relu', 
                      input_shape=input_shape))
-    
     model.add(MaxPooling2D(3, 3))
 
-    model.add(Conv2D(64, 7, activation='relu', padding='VALID'))
+    model.add(Conv2D(64, 3, activation='relu', padding='VALID'))
     
     model.add(BatchNormalization())
     model.add(Dropout(0.5))
     
-    model.add(Conv2D(128, 5, strides=(2,2), activation='relu', 
-                     padding='SAME'))
+    model.add(Conv2D(64, 3, strides=(2,2), activation='relu', 
+                     padding='VALID'))
+    model.add(MaxPooling2D(3, 3))
+    model.add(Conv2D(64, 2, strides=(2,2), activation='relu', 
+                     padding='VALID'))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.5))
+    model.add(Conv2D(64, 1, strides=(2,2), activation='relu', 
+                     padding='VALID'))
+    model.add(MaxPooling2D(3, 3))
     
-    
-    model.add(Conv2D(256, 3, strides=(2,2), activation='relu', 
-                     padding='SAME'))
+    #model.add(Conv2D(256, 3, strides=(2,2), activation='relu', 
+    #                 padding='SAME'))
     #model.add(Conv2D(128, 5, activation='relu', padding='VALID'))
     #model.add(Dropout(0.5))
     model.add(BatchNormalization())

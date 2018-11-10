@@ -25,18 +25,22 @@
 #python ../py_scripts/5_train_network.py -n alex_net64_reg -o alex_net64_margin5_reg -m 5.0 -e 1
 
 
-python ../py_scripts/5_train_network.py -n alex_net128_reg -o alex_net128_margin2_reg_alpha_1_25 -m 2.0 -e 1 --alpha 1.25
-python ../py_scripts/5_train_network.py -n alex_net128_reg -o alex_net128_margin2_reg_alpha_1_50 -m 2.0 -e 1 --alpha 1.50
-python ../py_scripts/5_train_network.py -n alex_net128_reg -o alex_net128_margin2_reg_alpha_2_0 -m 2.0 -e 1 --alpha 2.0
+#python ../py_scripts/5_train_network.py -n alex_net128_reg -o alex_net128_margin2_reg_alpha_1_25 -m 2.0 -e 1 --alpha 1.25
+#python ../py_scripts/5_train_network.py -n alex_net128_reg -o alex_net128_margin2_reg_alpha_1_50 -m 2.0 -e 1 --alpha 1.50
+#python ../py_scripts/5_train_network.py -n alex_net128_reg -o alex_net128_margin2_reg_alpha_2_0 -m 2.0 -e 1 --alpha 2.0
 
-python ../py_scripts/5_train_network.py -n alex_net128 -o alex_net128_margin2_alpha_1_25 -m 2.0 -e 1 --alpha 1.25
-python ../py_scripts/5_train_network.py -n alex_net128 -o alex_net128_margin2_alpha_1_50 -m 2.0 -e 1 --alpha 1.50
-python ../py_scripts/5_train_network.py -n alex_net128 -o alex_net128_margin2_alpha_2_0 -m 2.0 -e 1 --alpha 2.0
+#python ../py_scripts/5_train_network.py -n alex_net128 -o alex_net128_margin2_alpha_1_25 -m 2.0 -e 1 --alpha 1.25
+#python ../py_scripts/5_train_network.py -n alex_net128 -o alex_net128_margin2_alpha_1_50 -m 2.0 -e 1 --alpha 1.50
+#python ../py_scripts/5_train_network.py -n alex_net128 -o alex_net128_margin2_alpha_2_0 -m 2.0 -e 1 --alpha 2.0
 
-python ../py_scripts/5_train_network.py -n alex_net64 -o alex_net64_margin2_alpha_1_25 -m 2.0 -e 1 --alpha 1.25
-python ../py_scripts/5_train_network.py -n alex_net64 -o alex_net64_margin2_alpha_1_50 -m 2.0 -e 1 --alpha 1.50
-python ../py_scripts/5_train_network.py -n alex_net64 -o alex_net64_margin2 -m 2.0 -e 1 --alpha 2.0
+#python ../py_scripts/5_train_network.py -n alex_net64 -o alex_net64_margin2_alpha_1_25 -m 2.0 -e 1 --alpha 1.25
+#python ../py_scripts/5_train_network.py -n alex_net64 -o alex_net64_margin2_alpha_1_50 -m 2.0 -e 1 --alpha 1.50
+#python ../py_scripts/5_train_network.py -n alex_net64 -o alex_net64_margin2 -m 2.0 -e 1 --alpha 2.0
 
-python ../py_scripts/5_train_network.py -n alex_net64_reg -o alex_net64_margin2_reg_alpha_1_25 -m 2.0 -e 1 --alpha 1.25
-python ../py_scripts/5_train_network.py -n alex_net64_reg -o alex_net64_margin2_reg_alpha_1_50 -m 2.0 -e 1 --alpha 1.50
-python ../py_scripts/5_train_network.py -n alex_net64_reg -o alex_net64_margin2_reg_alpha_2_0 -m 2.0 -e 1 --alpha 2.0
+#python ../py_scripts/5_train_network.py -n alex_net64_reg -o alex_net64_margin2_reg_alpha_1_25 -m 2.0 -e 1 --alpha 1.25
+#python ../py_scripts/5_train_network.py -n alex_net64_reg -o alex_net64_margin2_reg_alpha_1_50 -m 2.0 -e 1 --alpha 1.50
+#python ../py_scripts/5_train_network.py -n alex_net64_reg -o alex_net64_margin2_reg_alpha_2_0 -m 2.0 -e 1 --alpha 2.0
+
+CUDA_VISIBLE_DEVICES=0 python ../py_scripts/5_train_network.py -n shallow -e 5 -o shallow_margin_0_2 -m 0.2
+CUDA_VISIBLE_DEVICES=0 python ../py_scripts/5_train_network.py -n shallow -e 5 -o shallow_margin_0_1 -m 0.1
+CUDA_VISIBLE_DEVICES=0 python ../py_scripts/5_train_network.py -n shallow -e 5 -o shallow_margin_0_5 -m 0.5

@@ -12,10 +12,10 @@ def vggnet_6_dbl_sigmoid(input_shape):
                                            input_shape=input_shape, 
                                            pooling=None, 
                                            classes=64)
-    for i in range(6):
+    for i in range(3):
         model.layers[i].trainable = False
         
-    x = BatchNormalization()(model.layers[-1].output)
+    x = BatchNormalization()(model.layers[5].output)
     x = Flatten(name='flatten')(x)
     x = Dropout(0.5)(x)
     x = Dense(1024, activation='sigmoid', name='fc1')(x)

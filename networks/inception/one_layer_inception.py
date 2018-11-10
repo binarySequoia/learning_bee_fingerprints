@@ -1,3 +1,4 @@
+
 from keras.models import Sequential 
 from keras.layers import Flatten, Dense, Dropout, Conv2D, MaxPooling2D, Input, concatenate
 from keras.layers.normalization import BatchNormalization
@@ -9,12 +10,12 @@ def one_layer_inception(input_shape):
     
     input_img = Input(shape=input_shape)
     
-    tower_1 = Conv2D(64, (1,1), padding='same', activation='relu')(input_img)
-    tower_1 = Conv2D(64, (3,3), padding='same', activation='relu')(tower_1)
-    tower_2 = Conv2D(64, (1,1), padding='same', activation='relu')(input_img)
-    tower_2 = Conv2D(64, (5,5), padding='same', activation='relu')(tower_2)
+    tower_1 = Conv2D(32, (1,1), padding='same', activation='relu')(input_img)
+    tower_1 = Conv2D(32, (3,3), strides=(2,2), padding='same', activation='relu')(tower_1)
+    tower_2 = Conv2D(32, (1,1), padding='same', activation='relu')(input_img)
+    tower_2 = Conv2D(32, (5,5), strides=(2,2), padding='same', activation='relu')(tower_2)
     tower_3 = MaxPooling2D((3,3), strides=(1,1), padding='same')(input_img)
-    tower_3 = Conv2D(64, (1,1), padding='same', activation='relu')(tower_3)
+    tower_3 = Conv2D(32, (1,1), strides=(2,2), padding='same', activation='relu')(tower_3)
     
     output = concatenate([tower_1, tower_2, tower_3], axis = 3)
 

@@ -1,4 +1,3 @@
-
 import matplotlib
 matplotlib.use('Agg')
 
@@ -13,7 +12,7 @@ import sys
 sys.path.append("../")
 from utils.contact_sheet import *
 
-parser = argparse.ArgumentParser(description='Train a specific network')
+parser = argparse.ArgumentParser(description='Create a contact sheet from specific dataset and model')
 parser.add_argument('-d', '--dataframe', metavar='', required=True,
                     help='network architeture name')
 parser.add_argument('-o', '--output', metavar='', required=True,
