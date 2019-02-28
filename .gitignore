@@ -2,8 +2,8 @@ stats/
 raw_data/
 datasets/
 data/
-models/
-logs/
+.*models/
+.*logs/
 .ipynb_checkpoints/
-weights/
+.*weights/
 __pycache__/
